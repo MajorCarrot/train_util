@@ -1,12 +1,26 @@
-from dataclasses import dataclass
-from typing import Callable, Tuple, List
+# Copyright (C) 2021 Adithya Venkateswaran
+#
+# train_util is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# train_util is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with train_util. If not, see <http://www.gnu.org/licenses/>.
 
-import torch
+from dataclasses import dataclass
+from typing import Callable, List, Tuple
+
 import matplotlib.pyplot as plt
-from tqdm.auto import tqdm
+import torch
 from torch import Tensor
 from torch.utils.data import DataLoader
-
+from tqdm.auto import tqdm
 
 # NOTE: Keep these as tuples
 L1_LAYERS = (torch.nn.Linear, torch.nn.Conv2d)
