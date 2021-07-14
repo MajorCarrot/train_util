@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with train_util. If not, see <http://www.gnu.org/licenses/>.
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Callable, List, Tuple
 
 import matplotlib.pyplot as plt
@@ -37,7 +37,7 @@ class train_configurator:
     dl_valid: DataLoader
     dl_test: DataLoader
     optimizer: torch.optim
-    lossfunction: Callable[[Tensor, Tensor]]
+    lossfunction: Callable[[Tensor, Tensor], float]
     lr_scheduler: torch.optim.lr_scheduler
     version: str = "FC"
     lambda_l1: float = 5e-4
@@ -52,11 +52,11 @@ class train_configurator:
 class train_stats:
     """Class to store train stats"""
 
-    train_accuracies: List[float] = []
-    val_accuracies: List[float] = []
-    test_accuracies: List[float] = []
-    train_losses: List[float] = []
-    val_losses: List[float] = []
+    train_accuracies: List[float] = field(default_factory=list)
+    val_accuracies: List[float] = field(default_factory=list)
+    test_accuracies: List[float] = field(default_factory=list)
+    train_losses: List[float] = field(default_factory=list)
+    val_losses: List[float] = field(default_factory=list)
 
 
 def l1_loss(model: torch.nn.Module, lambda_l1: float) -> float:
@@ -121,7 +121,7 @@ class train:
             val_accuracy,
             test_accuracy,
         ) = stats
-        print(f"\nLosses:\nTraining={train_loss:.5}\nValidation={val_loss:.5}")
+        print(f"Losses:\nTraining={train_loss:.5}\nValidation={val_loss:.5}")
         print(f"\nAccuracy:\nTraining={train_accuracy:.5}")
         print(f"Validation={val_accuracy:.5}\nTest={test_accuracy:.5}")
 
@@ -244,10 +244,10 @@ class train:
             if self.configurator.save:
                 assert self.configurator.save_path is not None
                 self._save()
-            print(
-                f"Best validation accuracy: {self.best_accuracy} \
-             at epoch: {self.best_epoch + 1}"
-            )
+                print("Saved Model!")
+        print(
+            f"Best validation accuracy: {self.best_accuracy:.5} at epoch: {self.best_epoch + 1}"
+        )
         if self.configurator.early_stopping > 0:
             if (
                 self.epoch_num - self.best_epoch
@@ -288,15 +288,15 @@ class train:
 
         print(
             f"Test accuracy at best epoch: \
-            {self.stats.test_accuracies[self.best_epoch]}"
+            {self.train_stats.test_accuracies[self.best_epoch]}"
         )
 
     def run(self) -> None:
         try:
             for i in range(self.configurator.num_epochs):
                 self.epoch_num = i
-                print(f"Epoch number: {self.epoch_num + 1}")
-                continue_training = self._run()
+                print(f"\n\nEpoch number: {self.epoch_num + 1}")
+                continue_training = self._run_epoch()
                 if not continue_training:
                     break
 
@@ -304,3 +304,5 @@ class train:
             print("Training Interrupted")
             self._plot()
             raise
+
+        self._plot()
