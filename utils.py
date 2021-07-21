@@ -144,21 +144,24 @@ class train:
         train_loss = 0
         train_accuracy = 0
         self.configurator.model.train()
-        with tqdm(total=len(self.configurator.dl_train)) as pbar:
-            for (input, target) in tqdm(self.configurator.dl_train):
-                self.configurator.optimizer.zero_grad()
-                input = input.to(self.configurator.device)
-                target = target.to(self.configurator.device)
+        for (input, target) in tqdm(
+            self.configurator.dl_train,
+            total=len(self.configurator.dl_train),
+            ascii=True,
+            mininterval=1,
+            miniters=20,
+        ):
+            self.configurator.optimizer.zero_grad()
+            input = input.to(self.configurator.device)
+            target = target.to(self.configurator.device)
 
-                mb_acc, mb_loss = self._get_accuracy_loss(input, target)
+            mb_acc, mb_loss = self._get_accuracy_loss(input, target)
 
-                train_loss += mb_loss.item()
-                train_accuracy += mb_acc
+            train_loss += mb_loss.item()
+            train_accuracy += mb_acc
 
-                mb_loss.backward()
-                self.configurator.optimizer.step()
-
-                pbar.update()
+            mb_loss.backward()
+            self.configurator.optimizer.step()
 
         train_accuracy /= len(self.configurator.dl_train)
         train_loss /= len(self.configurator.dl_train)
