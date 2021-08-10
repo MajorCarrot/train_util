@@ -20,7 +20,7 @@ import matplotlib.pyplot as plt
 import torch
 from torch import Tensor
 from torch.utils.data import DataLoader
-from tqdm.auto import tqdm
+from tqdm import tqdm
 
 # NOTE: Keep these as tuples
 L1_LAYERS = (torch.nn.Linear, torch.nn.Conv2d)
@@ -146,10 +146,7 @@ class train:
         self.configurator.model.train()
         for (input, target) in tqdm(
             self.configurator.dl_train,
-            total=len(self.configurator.dl_train),
             ascii=True,
-            mininterval=1,
-            miniters=20,
         ):
             self.configurator.optimizer.zero_grad()
             input = input.to(self.configurator.device)
